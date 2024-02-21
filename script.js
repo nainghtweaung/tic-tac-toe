@@ -71,6 +71,7 @@ const gameController = (function () {
   const getWinner = () => winner;
 
   const resetWinner = () => (winner = null);
+  const resetCurrentPlayer = () => (currentPlayer = players[0]);
 
   const switchPlayer = () => {
     currentPlayer = currentPlayer.id === "player1" ? players[1] : players[0];
@@ -78,7 +79,6 @@ const gameController = (function () {
 
   const checkWinner = (player) => {
     const cells = [...board[0], ...board[1], ...board[2]];
-    console.log("Cell array", cells);
 
     if (
       // Check for all rows
@@ -93,26 +93,22 @@ const gameController = (function () {
       [cells[0], cells[4], cells[8]].every((cell) => cell === player.token) ||
       [cells[2], cells[4], cells[6]].every((cell) => cell === player.token)
     ) {
-      console.log(player.id, "Won");
       winner = player;
+    }
+    if (cells.every((cell) => cell !== 0)) {
+      screenController.updateWinnerTitle("draw");
     }
   };
 
   const playRound = (row, column) => {
     if (winner) {
-      console.log("Game has ended.");
-      console.log("Winner: ", winner);
       return;
     }
     // Check if cell is available for move
     if (!gameBoard.cellIsAvailable(row, column)) {
-      console.log("Cell is occupied");
-      console.log(currentPlayer);
       return;
     }
     gameBoard.dropMarker(row, column, currentPlayer.id);
-    console.table(board);
-    console.log(currentPlayer);
 
     screenController.updatePlayerTurn(currentPlayer);
     // Check for winner
@@ -125,7 +121,13 @@ const gameController = (function () {
     switchPlayer();
   };
 
-  return {playRound, getWinner, getCurrentPlayer, resetWinner};
+  return {
+    playRound,
+    getWinner,
+    getCurrentPlayer,
+    resetWinner,
+    resetCurrentPlayer,
+  };
 })();
 
 const screenController = (function () {
@@ -154,6 +156,9 @@ const screenController = (function () {
 
   const updateWinnerTitle = (winner) => {
     winnerTitle.textContent = "Winner : " + winner.name;
+    if (winner === "draw") {
+      winnerTitle.textContent = "A draw";
+    }
   };
 
   const updatePlayerTurn = (currentPlayer) => {
@@ -169,15 +174,13 @@ const screenController = (function () {
 
     const board = gameBoard.getBoard();
     gameBoard.initializeGameBoard();
-    console.table(board);
     gameGridCells.forEach((cell) => {
       cell.textContent = "";
     });
     gameController.resetWinner();
     winnerTitle.textContent = "Make a move!";
+    gameController.resetCurrentPlayer();
   });
 
   return {updateWinnerTitle, updatePlayerTurn};
 })(document);
-
-console.table(gameBoard.getBoard());
