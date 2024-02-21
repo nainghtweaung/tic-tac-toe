@@ -55,10 +55,12 @@ const gameController = (function () {
     {
       id: "player1",
       token: 1,
+      name: "Player 1",
     },
     {
       id: "player2",
       token: 2,
+      name: "Player 2",
     },
   ];
 
@@ -67,6 +69,8 @@ const gameController = (function () {
 
   const getCurrentPlayer = () => currentPlayer;
   const getWinner = () => winner;
+
+  const resetWinner = () => (winner = null);
 
   const switchPlayer = () => {
     currentPlayer = currentPlayer.id === "player1" ? players[1] : players[0];
@@ -110,6 +114,7 @@ const gameController = (function () {
     console.table(board);
     console.log(currentPlayer);
 
+    screenController.updatePlayerTurn(currentPlayer);
     // Check for winner
     checkWinner(currentPlayer);
     if (winner) {
@@ -120,12 +125,14 @@ const gameController = (function () {
     switchPlayer();
   };
 
-  return {playRound, getWinner, getCurrentPlayer};
+  return {playRound, getWinner, getCurrentPlayer, resetWinner};
 })();
 
 const screenController = (function () {
-  const winnerTitle = document.querySelector(".winner-title");
+  const winnerTitle = document.querySelector(".player-turn");
   const gameGrid = document.querySelector(".game-grid");
+  const newGameBtn = document.querySelector(".new-game");
+  const gameGridCells = document.querySelectorAll(".grid-cell");
 
   gameGrid.addEventListener("click", (e) => {
     const winner = gameController.getWinner();
@@ -134,6 +141,9 @@ const screenController = (function () {
     }
     const [row, column] = e.target.dataset.cell.split(",");
     const currentPlayer = gameController.getCurrentPlayer();
+    if (!gameBoard.cellIsAvailable(row, column)) {
+      return;
+    }
     gameController.playRound(row, column);
     if (currentPlayer.id === "player1") {
       e.target.textContent = "x";
@@ -143,10 +153,31 @@ const screenController = (function () {
   });
 
   const updateWinnerTitle = (winner) => {
-    winnerTitle.textContent = winner.id;
+    winnerTitle.textContent = "Winner : " + winner.name;
   };
 
-  return {updateWinnerTitle};
+  const updatePlayerTurn = (currentPlayer) => {
+    if (currentPlayer.id === "player1") {
+      winnerTitle.textContent = "Player 2's turn";
+    } else {
+      winnerTitle.textContent = "Player 1's turn";
+    }
+  };
+
+  newGameBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    const board = gameBoard.getBoard();
+    gameBoard.initializeGameBoard();
+    console.table(board);
+    gameGridCells.forEach((cell) => {
+      cell.textContent = "";
+    });
+    gameController.resetWinner();
+    winnerTitle.textContent = "Make a move!";
+  });
+
+  return {updateWinnerTitle, updatePlayerTurn};
 })(document);
 
 console.table(gameBoard.getBoard());

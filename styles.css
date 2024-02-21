@@ -136,17 +136,30 @@ table {
   box-sizing: border-box;
 }
 
+header h1 {
+  font-size: 4rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 8px;
+  background-color: rosybrown;
+}
 main {
-  padding: 64px 0;
   display: flex;
   width: 90%;
   margin: auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
 }
-.winner-title-container {
-  margin-right: auto;
+.new-game {
+  padding: 8px 16px;
+  margin-bottom: 32px;
+  font-size: 24px;
+}
+.player-turn-container {
   padding-top: 16px;
   font-size: 3rem;
-  font-weight: bold;
 }
 .game-grid {
   --grid-cell-size: 150px;
@@ -159,4 +172,5 @@ main {
   padding: 24px;
   background-color: hsl(320deg, 40%, 90%);
   border: 1px solid hsl(320deg, 40%, 50%);
+  font-size: 4rem;
 }
